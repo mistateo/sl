@@ -1,79 +1,77 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Sendlane Sample Project
+This readme should hopefully serve as a complete guide to get the Sendlane Sample Project up and running. It is assumed that the project will be cloned onto a mac device (mine is currently out of date, running High Sierra), and php 7.x is already correctly installed.
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+#### Notes (since this is a sample app, never intended for production...):
+- I didn't secure mysql installation
+- I bypassed the .env system for most configs, since .env is ignored by git
+- Emails are using log driver, and should appear in laravel.log
 
-## About Laravel
+## Initial Yak Shaving
+When reading about valet, I discovered it will not work if something is already listening for connections on port 80. When I checked, using the following command: "sudo lsof -i :80" I determined apache was running for whatever reason.  I had to do the following to stop apache (when stopping normally via the service, it kept restarting):
+sudo launchctl unload -w /System/Library/LaunchDaemons/org.apache.httpd.plist
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## MySQL (install/run MySQL 5.7)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Install
+brew install mysql@5.7
+echo 'export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"' >> /Users/<username>/.bash_profile
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Start MySQL
+/usr/local/opt/mysql@5.7/bin/mysql.server start
 
-## Learning Laravel
+### Stop MySQL
+/usr/local/opt/mysql@5.7/bin/mysql.server stop
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Redis (install/run Redis):
+### Install
+brew install redis
+pecl install redis
+ln -sfv /usr/local/opt/redis/*.plist ~/Library/LaunchAgents
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Autostart
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.redis.plist
 
-## Laravel Sponsors
+### Test (run on the command line to ensure Redis is working)
+redis-cli ping
+SHOULD RETURN: PONG
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Remove Autostart (if you no longer wish to have Redis auto start)
+launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.redis.plist
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
-- [云软科技](http://www.yunruan.ltd/)
+### Uninstall (if you wish to uninstall Redis)
+brew uninstall redis
+$ rm ~/Library/LaunchAgents/homebrew.mxcl.redis.plist
 
-## Contributing
+## Copy project to local computer
+- via git clone
+- via download zip file
+- or however you want to do it
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Install dependencies
+Navigate to project root and run: "composer install"
 
-## Code of Conduct
+## Setup/Start Valet
+echo 'export PATH="~/.composer/vendor/bin:$PATH"' >> /Users/<username>/.bash_profile
+valet install
+cd /path/to/project
+valet link project
+valet start
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Create/Seed Database
+- create new database called "sendlane" on locally running mysql instance
+- navigate back to project root and run: "php artisan migrate --seed"
 
-## Security Vulnerabilities
+## Install Horizon
+Navigate to project root and run the following:
+- composer require laravel/horizon
+- php artisan horizon:install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Populate Queue (takes a couple min for 150k records)
+php artisan sendEmails:welcome
 
-## License
+## Start Queue Manager
+php artisan horizon
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Monitor Queue
+Open Browser and navigate to:
+http://<project_name>.test/horizon
