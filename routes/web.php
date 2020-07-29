@@ -16,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/csv', 'CsvFileController@index');
+
+Route::get('/csv/generate', 'CsvFileController@generateCsvFile');
+
+Route::post('/csv/upload', 'CsvFileController@uploadCsvFile');
